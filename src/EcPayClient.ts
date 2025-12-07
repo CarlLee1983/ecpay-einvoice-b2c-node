@@ -10,6 +10,8 @@ import { InvalidInvoice } from './operations/InvalidInvoice'
 import { GetInvoice } from './queries/GetInvoice'
 import { CheckLoveCode } from './queries/CheckLoveCode'
 import { CheckBarcode } from './queries/CheckBarcode'
+import { EcPayClientOptions, EcPayLogger, RetryConfig, DEFAULT_CLIENT_OPTIONS } from './types'
+import { EcPayError, EcPayApiError, EcPayNetworkError, EcPayEncryptionError, EcPayTimeoutError } from './errors'
 
 export interface EcPayResponse<T = any> {
     RtnCode: number
@@ -23,33 +25,70 @@ export interface EcPayResponse<T = any> {
 /**
  * Client for interacting with ECPay e-Invoice B2C API.
  * Handles encryption, decryption, and payload construction.
+ *
+ * @example
+ * ```typescript
+ * const client = new EcPayClient(
+ *     'https://einvoice-stage.ecpay.com.tw',
+ *     'hashKey',
+ *     'hashIV',
+ *     'merchantId',
+ *     { timeout: 30000, retry: { maxRetries: 3 } }
+ * )
+ * ```
  */
 export class EcPayClient {
     private axios: AxiosInstance
     private payloadEncoder: PayloadEncoder
     private merchantId: string
+    private options: Required<Omit<EcPayClientOptions, 'axiosInstance' | 'logger' | 'headers'>> & {
+        retry: Required<RetryConfig>
+    }
+    private logger?: EcPayLogger
 
     /**
      * Creates an instance of EcPayClient.
      * @param serverUrl ECPay API server URL (e.g., https://einvoice-stage.ecpay.com.tw)
-     * @param hashKey Merchant HashKey
-     * @param hashIV Merchant HashIV
+     * @param hashKey Merchant HashKey (16 characters)
+     * @param hashIV Merchant HashIV (16 characters)
      * @param merchantId Merchant ID
+     * @param options Optional client configuration (timeout, retry, axios instance, logger)
      */
     constructor(
         private serverUrl: string,
         private hashKey: string,
         private hashIV: string,
         merchantId: string,
+        options?: EcPayClientOptions,
     ) {
-        this.axios = axios.create({
-            baseURL: serverUrl,
-            headers: {
-                'Content-Type': 'application/json',
+        this.options = {
+            timeout: options?.timeout ?? DEFAULT_CLIENT_OPTIONS.timeout,
+            retry: {
+                maxRetries: options?.retry?.maxRetries ?? DEFAULT_CLIENT_OPTIONS.retry.maxRetries,
+                retryDelay: options?.retry?.retryDelay ?? DEFAULT_CLIENT_OPTIONS.retry.retryDelay,
+                backoffMultiplier: options?.retry?.backoffMultiplier ?? DEFAULT_CLIENT_OPTIONS.retry.backoffMultiplier,
+                retryableStatusCodes:
+                    options?.retry?.retryableStatusCodes ?? DEFAULT_CLIENT_OPTIONS.retry.retryableStatusCodes,
             },
-        })
+        }
+        this.logger = options?.logger
+
+        // Use provided axios instance or create new one
+        this.axios =
+            options?.axiosInstance ??
+            axios.create({
+                baseURL: serverUrl,
+                timeout: this.options.timeout,
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...options?.headers,
+                },
+            })
+
         this.merchantId = merchantId
         this.payloadEncoder = new PayloadEncoder(new CipherService(hashKey, hashIV))
+
+        this.log('debug', `EcPayClient initialized for ${serverUrl}`)
     }
 
     /**
@@ -76,7 +115,7 @@ export class EcPayClient {
             return this.sendRequest(pathOrCommand, data || {})
         }
 
-        throw new Error('Invalid arguments to send()')
+        throw new EcPayError('Invalid arguments to send()', 'INVALID_ARGUMENTS')
     }
 
     /**
@@ -101,9 +140,6 @@ export class EcPayClient {
         if (data.CarrierNum) invoice.setCarrierNum(data.CarrierNum)
         if (data.TaxType) invoice.setTaxType(data.TaxType)
         if (data.SalesAmount) invoice.setSalesAmount(data.SalesAmount)
-
-        // InvType handling if we assume it might be in data but setter is missing in Invoice class public API
-        // For now, ignoring it or assuming defaults. If required, Invoice class needs update.
 
         if (data.Items && Array.isArray(data.Items)) {
             const items = data.Items.map(
@@ -192,6 +228,19 @@ export class EcPayClient {
         return this.send(query)
     }
 
+    /**
+     * Get current client options.
+     */
+    public getOptions(): typeof this.options {
+        return { ...this.options }
+    }
+
+    private log(level: 'debug' | 'info' | 'warn' | 'error', message: string, ...args: any[]): void {
+        if (this.logger && this.logger[level]) {
+            this.logger[level]!(message, ...args)
+        }
+    }
+
     private async sendRequest<T = any>(path: string, data: Record<string, any>): Promise<EcPayResponse<T>> {
         // 1. Prepare Payload
         const requestData = {
@@ -210,30 +259,87 @@ export class EcPayClient {
         // 2. Encode
         const encodedPayload = this.payloadEncoder.encodePayload(payload)
 
-        // 3. Send
-        try {
-            const response = await this.axios.post(path, encodedPayload)
-            const responseBody = response.data
+        this.log('debug', `Sending request to ${path}`)
 
-            // 4. Decode Response
-            if (responseBody.Data) {
-                try {
-                    const decodedData = this.payloadEncoder.decodeData(responseBody.Data)
-                    return {
-                        ...responseBody,
-                        Data: decodedData,
+        // 3. Send with retry logic
+        let lastError: Error | null = null
+        const maxRetries = this.options.retry.maxRetries
+
+        for (let attempt = 0; attempt <= maxRetries; attempt++) {
+            try {
+                const response = await this.axios.post(path, encodedPayload)
+                const responseBody = response.data
+
+                this.log('debug', `Received response from ${path}`, { RtnCode: responseBody.RtnCode })
+
+                // 4. Decode Response
+                if (responseBody.Data) {
+                    try {
+                        const decodedData = this.payloadEncoder.decodeData(responseBody.Data)
+                        return {
+                            ...responseBody,
+                            Data: decodedData,
+                        }
+                    } catch (e) {
+                        throw new EcPayEncryptionError(
+                            `Failed to decrypt response: ${e instanceof Error ? e.message : String(e)}`,
+                        )
                     }
-                } catch (e) {
-                    throw e
                 }
-            }
 
-            return responseBody
-        } catch (error) {
-            if (axios.isAxiosError(error) && error.response) {
-                throw new Error(`API Error: ${error.response.status} ${JSON.stringify(error.response.data)}`)
+                return responseBody
+            } catch (error) {
+                lastError = error as Error
+
+                // Check if error is retryable
+                if (axios.isAxiosError(error)) {
+                    const statusCode = error.response?.status
+                    const isTimeout = error.code === 'ECONNABORTED' || error.code === 'ETIMEDOUT'
+                    const isRetryable =
+                        isTimeout || (statusCode && this.options.retry.retryableStatusCodes.includes(statusCode))
+
+                    if (isRetryable && attempt < maxRetries) {
+                        const delay =
+                            this.options.retry.retryDelay * Math.pow(this.options.retry.backoffMultiplier, attempt)
+                        this.log(
+                            'warn',
+                            `Request failed, retrying in ${delay}ms (attempt ${attempt + 1}/${maxRetries})`,
+                        )
+                        await this.sleep(delay)
+                        continue
+                    }
+
+                    if (isTimeout) {
+                        throw new EcPayTimeoutError(
+                            `Request timed out after ${this.options.timeout}ms`,
+                            this.options.timeout,
+                        )
+                    }
+
+                    if (error.response) {
+                        throw new EcPayNetworkError(
+                            `API Error: ${error.response.status} ${JSON.stringify(error.response.data)}`,
+                            error.response.status,
+                            error,
+                        )
+                    }
+
+                    throw new EcPayNetworkError(error.message, undefined, error)
+                }
+
+                // Non-axios error (encryption error, etc.)
+                if (error instanceof EcPayError) {
+                    throw error
+                }
+
+                throw lastError
             }
-            throw error
         }
+
+        throw lastError
+    }
+
+    private sleep(ms: number): Promise<void> {
+        return new Promise((resolve) => setTimeout(resolve, ms))
     }
 }

@@ -124,12 +124,15 @@ describe('EcPayClient', () => {
         mockPost.mockRejectedValue({
             isAxiosError: true,
             response: {
-                status: 500,
-                data: 'Internal Error',
+                status: 400, // 400 is not retryable by default
+                data: 'Bad Request',
             },
         })
 
-        const client = new EcPayClient(serverUrl, hashKey, hashIV, merchantId)
+        // Disable retry for faster test
+        const client = new EcPayClient(serverUrl, hashKey, hashIV, merchantId, {
+            retry: { maxRetries: 0 },
+        })
         // Provide valid minimal payload to pass validation, then fail at axios level
         await expect(
             client.issueInvoice({
@@ -138,7 +141,7 @@ describe('EcPayClient', () => {
                 SalesAmount: 1,
                 Items: [{ ItemName: 'N', ItemCount: 1, ItemWord: 'u', ItemPrice: 1 }],
             }),
-        ).rejects.toThrow('API Error: 500')
+        ).rejects.toThrow('API Error: 400')
     })
 
     it('should handle non-axios errors', async () => {
