@@ -14,6 +14,13 @@
 - 📦 **現代化技術棧**：基於 `axios`、`zod` 和 `typescript` 建構。
 - ✅ **高測試覆蓋率**：100% 行覆蓋率，90%+ 分支覆蓋率。
 
+## 適用範圍
+
+- **服務**：ECPay 綠界科技 B2C 電子發票 API (Business-to-Consumer)。
+- **環境**：台灣 (ROC) 電子發票系統。
+- **不支援**：本 SDK **不支援** B2B (Business-to-Business) 電子發票。
+- **API 版本**：相容於 ECPay 電子發票 API v2.x。
+
 ## 安裝
 
 ```bash
@@ -238,4 +245,15 @@ MIT
 
 ## 貢獻
 
-歡迎提交 Pull Request！
+
+## 文件
+
+- [API 參考文件](./docs/API.md) - 完整 API 文件
+- [安全性政策](./SECURITY.md) - 安全指南與弱點回報
+- [貢獻指南](./CONTRIBUTING.md) - 開發設定與規範
+- [行為準則](./CODE_OF_CONDUCT.md) - 社群規範
+- [更新日誌](./CHANGELOG.md) - 版本歷史
+
+## 貢獻
+
+歡迎提交 Pull Request！請參考 [貢獻指南](./CONTRIBUTING.md) 了解更多細節。

@@ -14,6 +14,13 @@ A modern, TypeScript-based SDK for ECPay (綠界科技) B2C e-Invoice API.
 - 📦 **Modern Stack**: Built with `axios`, `zod`, and `typescript`.
 - ✅ **High Test Coverage**: 100% line coverage, 90%+ branch coverage.
 
+## Supported Scope
+
+- **Service**: ECPay B2C e-Invoice API (Business-to-Consumer).
+- **Environment**: Taiwan (ROC) Electronic Invoice System.
+- **Unsupported**: B2B (Business-to-Business) invoicing is **not** supported.
+- **API Version**: Compatible with ECPay e-Invoice API v2.x.
+
 ## Installation
 
 ```bash
@@ -224,6 +231,7 @@ pnpm format
 - [API Reference](./docs/API.md) - Complete API documentation
 - [Security Policy](./SECURITY.md) - Security guidelines and vulnerability reporting
 - [Contributing](./CONTRIBUTING.md) - Development setup and guidelines
+- [Code of Conduct](./CODE_OF_CONDUCT.md) - Community standards
 - [Changelog](./CHANGELOG.md) - Version history
 
 ## Examples
