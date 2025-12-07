@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.1](https://github.com/CarlLee1983/ecpay-einvoice-b2c-node/compare/v1.0.0...v1.0.1) (2025-12-07)
+
+
+### Bug Fixes
+
+* **ci:** remove explicit pnpm version to avoid conflict with package.json ([6631921](https://github.com/CarlLee1983/ecpay-einvoice-b2c-node/commit/6631921bcf01424d4603f5f71f5a973dd6ee3d8d))
+
 ## 1.0.0 (2025-12-07)
 
 
