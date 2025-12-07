@@ -28,15 +28,32 @@ yarn add ecpay-einvoice-b2c-node
 
 ### 1. 初始化客戶端
 
+> ⚠️ **安全警告**：以下顯示的憑證是 **ECPay 測試環境憑證**，僅供示範使用。**請勿將真實憑證提交到版本控制！** 正式環境請使用環境變數。
+
 ```typescript
 import { EcPayClient } from 'ecpay-einvoice-b2c-node'
 
+// 使用環境變數（建議做法）
 const client = new EcPayClient(
-    'https://einvoice-stage.ecpay.com.tw', // 伺服器網址（測試環境）
-    'ejCk326UnaZWKisg',                    // HashKey
-    'q9jcZX8Ib9LM8wYk',                    // HashIV
-    '2000132'                              // 特店編號
+    process.env.ECPAY_SERVER_URL || 'https://einvoice-stage.ecpay.com.tw',
+    process.env.ECPAY_HASH_KEY || 'ejCk326UnaZWKisg',   // 測試金鑰
+    process.env.ECPAY_HASH_IV || 'q9jcZX8Ib9LM8wYk',    // 測試 IV
+    process.env.ECPAY_MERCHANT_ID || '2000132'          // 測試特店編號
 )
+```
+
+**本地開發使用 dotenv：**
+
+```bash
+npm install dotenv
+```
+
+建立 `.env` 檔案（請加入 `.gitignore`）：
+```
+ECPAY_SERVER_URL=https://einvoice-stage.ecpay.com.tw
+ECPAY_HASH_KEY=your_hash_key
+ECPAY_HASH_IV=your_hash_iv
+ECPAY_MERCHANT_ID=your_merchant_id
 ```
 
 > **注意**：正式環境請使用 `https://einvoice.ecpay.com.tw`

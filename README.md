@@ -28,15 +28,32 @@ yarn add ecpay-einvoice-b2c-node
 
 ### 1. Initialize Client
 
+> ⚠️ **Security Warning**: The credentials shown below are **ECPay staging/test credentials** for demonstration only. **Never commit real credentials to version control!** Use environment variables in production.
+
 ```typescript
 import { EcPayClient } from 'ecpay-einvoice-b2c-node'
 
+// Using environment variables (recommended)
 const client = new EcPayClient(
-    'https://einvoice-stage.ecpay.com.tw', // Server URL (staging)
-    'ejCk326UnaZWKisg',                    // HashKey
-    'q9jcZX8Ib9LM8wYk',                    // HashIV
-    '2000132'                              // MerchantID
+    process.env.ECPAY_SERVER_URL || 'https://einvoice-stage.ecpay.com.tw',
+    process.env.ECPAY_HASH_KEY || 'ejCk326UnaZWKisg',   // Test key
+    process.env.ECPAY_HASH_IV || 'q9jcZX8Ib9LM8wYk',    // Test IV
+    process.env.ECPAY_MERCHANT_ID || '2000132'          // Test MerchantID
 )
+```
+
+**Using dotenv for local development:**
+
+```bash
+npm install dotenv
+```
+
+Create `.env` file (add to `.gitignore`):
+```
+ECPAY_SERVER_URL=https://einvoice-stage.ecpay.com.tw
+ECPAY_HASH_KEY=your_hash_key
+ECPAY_HASH_IV=your_hash_iv
+ECPAY_MERCHANT_ID=your_merchant_id
 ```
 
 > **Note**: Use `https://einvoice.ecpay.com.tw` for production.

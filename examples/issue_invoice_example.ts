@@ -1,11 +1,21 @@
+/**
+ * Issue Invoice Example
+ *
+ * Before running:
+ * 1. Copy .env.example to .env
+ * 2. Fill in your ECPay credentials
+ * 3. Run: npx ts-node examples/issue_invoice_example.ts
+ */
+import 'dotenv/config'
 import { EcPayClient, InvType, TaxType, PrintMark, Donation, CarrierType } from '../src'
 
 async function main() {
+    // Use environment variables for credentials (recommended)
     const client = new EcPayClient(
-        'https://einvoice-stage.ecpay.com.tw',
-        'ejCk326UnaZWKisg',
-        'q9jcZX8Ib9LM8wYk',
-        '2000132',
+        process.env.ECPAY_SERVER_URL || 'https://einvoice-stage.ecpay.com.tw',
+        process.env.ECPAY_HASH_KEY || 'ejCk326UnaZWKisg',
+        process.env.ECPAY_HASH_IV || 'q9jcZX8Ib9LM8wYk',
+        process.env.ECPAY_MERCHANT_ID || '2000132',
     )
 
     try {
