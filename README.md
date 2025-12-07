@@ -219,10 +219,38 @@ pnpm test:coverage
 pnpm format
 ```
 
+## Documentation
+
+- [API Reference](./docs/API.md) - Complete API documentation
+- [Security Policy](./SECURITY.md) - Security guidelines and vulnerability reporting
+- [Contributing](./CONTRIBUTING.md) - Development setup and guidelines
+- [Changelog](./CHANGELOG.md) - Version history
+
+## Examples
+
+Example files are in the `examples/` directory:
+
+| File | Description |
+|------|-------------|
+| `issue_invoice_example.ts` | Issue a new invoice |
+| `issue_allowance_example.ts` | Issue an allowance (refund) |
+| `invalid_invoice_example.ts` | Void an invoice |
+| `get_invoice_example.ts` | Query invoice details |
+| `check_love_code_example.ts` | Validate love code |
+| `check_barcode_example.ts` | Validate mobile barcode |
+| `error_handling_example.ts` | Comprehensive error handling |
+| `custom_config_example.ts` | Custom axios, logger, retry config |
+
+Run examples:
+```bash
+npx ts-node examples/issue_invoice_example.ts
+```
+
 ## License
 
 MIT
 
 ## Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+Contributions are welcome! Please read [CONTRIBUTING.md](./CONTRIBUTING.md) for details.
+
