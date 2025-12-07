@@ -24,12 +24,7 @@ describe('Coverage Improvements', () => {
 
     describe('EcPayClient', () => {
         it('should return current options', () => {
-            const client = new EcPayClient(
-                'https://test.com',
-                '1234567890123456',
-                '1234567890123456',
-                '1234'
-            )
+            const client = new EcPayClient('https://test.com', '1234567890123456', '1234567890123456', '1234')
             const options = client.getOptions()
             expect(options).toBeDefined()
             expect(options.timeout).toBeDefined()
@@ -40,38 +35,24 @@ describe('Coverage Improvements', () => {
                 debug: vi.fn(),
                 info: vi.fn(),
                 warn: vi.fn(),
-                error: vi.fn()
+                error: vi.fn(),
             }
 
-            const client = new EcPayClient(
-                'https://test.com',
-                '1234567890123456',
-                '1234567890123456',
-                '1234',
-                { logger }
-            )
+            const client = new EcPayClient('https://test.com', '1234567890123456', '1234567890123456', '1234', {
+                logger,
+            })
 
             expect(logger.debug).toHaveBeenCalled()
         })
 
         it('should handle network error without response', async () => {
-            const client = new EcPayClient(
-                'https://test.com',
-                '1234567890123456',
-                '1234567890123456',
-                '1234',
-                {
-                    retry: { maxRetries: 0 }
-                }
-            )
+            const client = new EcPayClient('https://test.com', '1234567890123456', '1234567890123456', '1234', {
+                retry: { maxRetries: 0 },
+            })
 
-            nock('https://test.com')
-                .post('/B2CInvoice/CheckBarcode')
-                .replyWithError('Network Error')
+            nock('https://test.com').post('/B2CInvoice/CheckBarcode').replyWithError('Network Error')
 
-            await expect(client.checkBarcode({ BarCode: '/ABC1234' }))
-                .rejects
-                .toThrow('Network Error')
+            await expect(client.checkBarcode({ BarCode: '/ABC1234' })).rejects.toThrow('Network Error')
         })
     })
 

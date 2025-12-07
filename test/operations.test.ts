@@ -147,8 +147,6 @@ describe('Allowance Operation', () => {
         expect(() => allowance.validate()).not.toThrow()
     })
 
-
-
     it('should validate contact info requirements', () => {
         const a = new AllowanceInvoice()
         a.setInvoiceNo('1234567890')
