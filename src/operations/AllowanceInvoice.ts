@@ -93,7 +93,6 @@ export class AllowanceInvoice extends EcPayOperation {
         // Validation
         if (!this.data.InvoiceNo) throw new Error('InvoiceNo empty')
         if (!this.data.InvoiceDate) throw new Error('InvoiceDate empty')
-        if (this.data.AllowanceAmount <= 0) throw new Error('AllowanceAmount must be > 0')
         if (this.items.length === 0) throw new Error('Items empty')
 
         if (this.data.AllowanceNotify === AllowanceNotifyType.EMAIL && !this.data.NotifyMail) {

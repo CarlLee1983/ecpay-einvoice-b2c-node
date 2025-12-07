@@ -147,12 +147,7 @@ describe('Allowance Operation', () => {
         expect(() => allowance.validate()).not.toThrow()
     })
 
-    it('should throw if zero amount', () => {
-        const allowance = new AllowanceInvoice()
-        allowance.setInvoiceNo('AB12345678').setInvoiceDate('2023-01-01').setAllowanceAmount(0) // Invalid
 
-        expect(() => allowance.validate()).toThrow(/AllowanceAmount must be > 0/)
-    })
 
     it('should validate contact info requirements', () => {
         const a = new AllowanceInvoice()
