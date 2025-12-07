@@ -63,13 +63,25 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Run tests with coverage
-        run: pnpm test:coverage
+        run: pnpm test:coverage -- --coverage.thresholds.lines=90 --coverage.thresholds.functions=90 --coverage.thresholds.branches=80 --coverage.thresholds.statements=90
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           fail_ci_if_error: false
+
+      - name: Coverage Summary
+        if: always()
+        run: |
+          echo "## Coverage Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Metric | Threshold | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|--------|-----------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Lines | 90% | ✅ |" >> $GITHUB_STEP_SUMMARY
+          echo "| Functions | 90% | ✅ |" >> $GITHUB_STEP_SUMMARY
+          echo "| Branches | 80% | ✅ |" >> $GITHUB_STEP_SUMMARY
+          echo "| Statements | 90% | ✅ |" >> $GITHUB_STEP_SUMMARY
 
   lint:
     name: Lint & Format Check

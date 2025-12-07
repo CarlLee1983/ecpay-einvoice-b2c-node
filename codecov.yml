@@ -1,0 +1,31 @@
+comment_layout: "condensed_header, condensed_files, condensed_footer"
+coverage:
+  precision: 2
+  round: down
+  status:
+    project:
+      default:
+        target: 90%
+        threshold: 2%
+    patch:
+      default:
+        target: 80%
+        threshold: 5%
+
+parsers:
+  gcov:
+    branch_detection:
+      conditional: yes
+      loop: yes
+      method: no
+      macro: no
+
+comment:
+  layout: "reach,diff,flags,files,footer"
+  behavior: default
+  require_changes: yes
+  require_base: no
+  require_head: yes
+
+github_checks:
+  annotations: true
