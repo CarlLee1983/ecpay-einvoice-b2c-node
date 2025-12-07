@@ -4,19 +4,37 @@
     "description": "ECPay e-Invoice API wrapper for Node.js",
     "main": "dist/index.js",
     "types": "dist/index.d.ts",
+    "files": [
+        "dist",
+        "README.md",
+        "README_TW.md"
+    ],
     "scripts": {
         "build": "tsc",
         "test": "vitest run",
         "test:watch": "vitest",
         "test:coverage": "vitest run --coverage",
-        "format": "prettier --write \"{src,test,examples}/**/*.ts\""
+        "format": "prettier --write \"{src,test,examples}/**/*.ts\"",
+        "format:check": "prettier --check \"{src,test,examples}/**/*.ts\"",
+        "typecheck": "tsc --noEmit"
     },
     "keywords": [
         "ecpay",
         "einvoice",
+        "invoice",
+        "taiwan",
+        "b2c",
         "node",
         "typescript"
     ],
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/CarlLee1983/ecpay-einvoice-b2c-node.git"
+    },
+    "homepage": "https://github.com/CarlLee1983/ecpay-einvoice-b2c-node#readme",
+    "bugs": {
+        "url": "https://github.com/CarlLee1983/ecpay-einvoice-b2c-node/issues"
+    },
     "author": "Carl",
     "license": "MIT",
     "dependencies": {
