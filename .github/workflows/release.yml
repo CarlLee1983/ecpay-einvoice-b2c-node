@@ -1,18 +1,31 @@
-name: Release
+name: Release Please
 
 on:
   push:
-    tags:
-      - 'v*'
+    branches:
+      - main
+
+permissions:
+  contents: write
+  pull-requests: write
 
 jobs:
-  release:
-    name: Build and Publish
+  release-please:
     runs-on: ubuntu-latest
-    
-    permissions:
-      contents: write
-      id-token: write
+    outputs:
+      release_created: ${{ steps.release.outputs.release_created }}
+      tag_name: ${{ steps.release.outputs.tag_name }}
+    steps:
+      - name: Release Please
+        id: release
+        uses: googleapis/release-please-action@v4
+        with:
+          release-type: node
+
+  publish:
+    needs: release-please
+    runs-on: ubuntu-latest
+    if: ${{ needs.release-please.outputs.release_created }}
     
     steps:
       - name: Checkout repository
@@ -43,8 +56,3 @@ jobs:
         run: pnpm publish --access public --no-git-checks
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-
-      - name: Create GitHub Release
-        uses: softprops/action-gh-release@v2
-        with:
-          generate_release_notes: true

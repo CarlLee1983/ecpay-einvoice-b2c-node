@@ -1,0 +1,7 @@
+{
+    ".": {
+        "release-please": {
+            "release-type": "node"
+        }
+    }
+}
