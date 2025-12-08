@@ -36,7 +36,11 @@
         "api",
         "sdk",
         "node",
-        "typescript"
+        "typescript",
+        "綠界",
+        "電子發票",
+        "載具",
+        "手機條碼"
     ],
     "repository": {
         "type": "git",
