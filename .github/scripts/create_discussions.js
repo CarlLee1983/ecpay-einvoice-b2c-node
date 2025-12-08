@@ -12,7 +12,7 @@
  * 
  * Optional environment variables:
  * - INPUT_CATEGORIES: comma-separated list of category names (default: Q&A,How-to,Show & Tell,Ideas,Announcements)
- * - INPUT_WELCOME_TITLE: title for the welcome discussion (default: "Welcome to Discussions — ecpay-einvoice-b2c-node")
+ * - INPUT_WELCOME_TITLE: title for the welcome discussion (default: "Welcome to Discussions — {repository-name}")
  * - INPUT_WELCOME_BODY: body content for the welcome discussion
  */
 
@@ -44,8 +44,8 @@ Thank you for joining our community discussions! This is a space where you can:
 
 ## Getting Started
 
-- 📖 Check out the [README](../blob/main/README.md) for documentation
-- 🐛 Found a bug? Please [open an issue](../issues/new)
+- 📖 Check out the README for documentation
+- 🐛 Found a bug? Please open an issue
 - 💡 Have a feature idea? Start a discussion in the **Ideas** category
 - ❓ Need help? Post in **Q&A**
 
