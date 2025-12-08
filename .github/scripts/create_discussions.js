@@ -22,7 +22,17 @@ const https = require('https');
 const GITHUB_REPOSITORY = process.env.GITHUB_REPOSITORY;
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
 const INPUT_CATEGORIES = process.env.INPUT_CATEGORIES || 'Q&A,How-to,Show & Tell,Ideas,Announcements';
-const INPUT_WELCOME_TITLE = process.env.INPUT_WELCOME_TITLE || `Welcome to Discussions — ${GITHUB_REPOSITORY?.split('/')[1] || 'ecpay-einvoice-b2c-node'}`;
+
+// Extract repository name for welcome message
+const getRepoName = () => {
+  if (GITHUB_REPOSITORY) {
+    const parts = GITHUB_REPOSITORY.split('/');
+    return parts[1] || parts[0] || 'this project';
+  }
+  return 'this project';
+};
+
+const INPUT_WELCOME_TITLE = process.env.INPUT_WELCOME_TITLE || `Welcome to Discussions — ${getRepoName()}`;
 const INPUT_WELCOME_BODY = process.env.INPUT_WELCOME_BODY || `# Welcome! 👋
 
 Thank you for joining our community discussions! This is a space where you can:
@@ -175,6 +185,9 @@ async function createCategory(repositoryId, name) {
 
 /**
  * Search for existing discussions by title
+ * Note: Fetches first 100 discussions. For repos with many discussions,
+ * this may not find older discussions. This is acceptable for checking
+ * the existence of a welcome discussion which is typically created early.
  */
 async function findDiscussionByTitle(title) {
   const query = `
@@ -294,9 +307,9 @@ async function main() {
     if (existingDiscussion) {
       console.log(`✓ Welcome discussion already exists: ${existingDiscussion.url}`);
     } else {
-      // Try to create in Announcements category, fallback to Q&A
-      let categoryId = categoryMap['Announcements'] || categoryMap['Q&A'];
-      const categoryName = categoryMap['Announcements'] ? 'Announcements' : 'Q&A';
+      // Determine which category to use: prefer Announcements, fallback to Q&A
+      const preferredCategoryName = categoryMap['Announcements'] ? 'Announcements' : 'Q&A';
+      const categoryId = categoryMap[preferredCategoryName];
       
       if (!categoryId) {
         console.error('✗ No suitable category found for welcome discussion');
@@ -304,7 +317,7 @@ async function main() {
         process.exit(1);
       }
 
-      console.log(`Creating welcome discussion in "${categoryName}" category...`);
+      console.log(`Creating welcome discussion in "${preferredCategoryName}" category...`);
       const discussion = await createDiscussion(
         repositoryId,
         categoryId,
