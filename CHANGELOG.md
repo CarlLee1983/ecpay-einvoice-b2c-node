@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.1](https://github.com/CarlLee1983/ecpay-einvoice-b2c-node/compare/v1.1.0...v1.1.1) (2025-12-08)
+
+
+### Bug Fixes
+
+* **ci:** use built-in GITHUB_TOKEN for discussions setup ([1090bc9](https://github.com/CarlLee1983/ecpay-einvoice-b2c-node/commit/1090bc9be237fad1a5034d57250916056931995c))
+
 ## [1.1.0](https://github.com/CarlLee1983/ecpay-einvoice-b2c-node/compare/v1.0.2...v1.1.0) (2025-12-08)
 
 
