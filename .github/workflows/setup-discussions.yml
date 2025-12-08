@@ -26,7 +26,7 @@ jobs:
         # IMPORTANT: Ensure repo secret DISCUSSIONS_TOKEN exists before running this workflow.
         env:
           GITHUB_REPOSITORY: ${{ github.repository }}
-          GITHUB_TOKEN: ${{ secrets.DISCUSSIONS_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: node .github/scripts/create_discussions.js
 
 # NOTE:
