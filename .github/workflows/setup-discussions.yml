@@ -1,91 +1,35 @@
-name: Setup GitHub Discussions
-
-# This workflow creates GitHub Discussions categories and a welcome discussion
-# if they don't already exist. It is idempotent and safe to run multiple times.
-#
-# How to use:
-# 1. Merge this PR to the main branch
-# 2. Go to Actions tab → "Setup GitHub Discussions" workflow
-# 3. Click "Run workflow" button to manually trigger it
-#
-# Or it will run automatically when changes are pushed to main branch.
-#
-# Required permissions:
-# - The GITHUB_TOKEN must have "discussions: write" permission
-# - Repository must have Discussions enabled in Settings → Features
+name: Setup Discussions (use PAT secret)
 
 on:
-  # Allow manual triggering from the Actions tab
   workflow_dispatch:
-    inputs:
-      categories:
-        description: 'Comma-separated list of category names to create'
-        required: false
-        default: 'Q&A,How-to,Show & Tell,Ideas,Announcements'
-      welcome_title:
-        description: 'Title for the welcome discussion'
-        required: false
-        default: ''
-      welcome_body:
-        description: 'Body content for the welcome discussion (optional)'
-        required: false
-        default: ''
-  
-  # Run on push to main branch (optional - can be removed if you prefer manual-only)
   push:
-    branches:
-      - main
-    paths:
-      - '.github/workflows/setup-discussions.yml'
-      - '.github/scripts/create_discussions.js'
+    branches: [ main ]
 
-# Set permissions for GITHUB_TOKEN
 permissions:
-  discussions: write
+  # keep default repository contents read; we will use a PAT secret for discussion API
   contents: read
+  discussions: write
 
 jobs:
   setup-discussions:
-    name: Create Discussion Categories and Welcome Post
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
+      - name: Checkout
         uses: actions/checkout@v4
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: 18
 
-      - name: Run discussions setup script
+      - name: Run create_discussions script (use PAT from secret)
+        # IMPORTANT: Ensure repo secret DISCUSSIONS_TOKEN exists before running this workflow.
         env:
           GITHUB_REPOSITORY: ${{ github.repository }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          INPUT_CATEGORIES: ${{ github.event.inputs.categories || 'Q&A,How-to,Show & Tell,Ideas,Announcements' }}
-          INPUT_WELCOME_TITLE: ${{ github.event.inputs.welcome_title }}
-          INPUT_WELCOME_BODY: ${{ github.event.inputs.welcome_body }}
-        run: |
-          echo "Setting up GitHub Discussions..."
-          node .github/scripts/create_discussions.js
+          GITHUB_TOKEN: ${{ secrets.DISCUSSIONS_TOKEN }}
+        run: node .github/scripts/create_discussions.js
 
-      - name: Summary
-        if: success()
-        run: |
-          echo "## ✅ Discussions Setup Complete" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "GitHub Discussions categories and welcome post have been created." >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "Visit your repository's Discussions tab to see them:" >> $GITHUB_STEP_SUMMARY
-          echo "https://github.com/${{ github.repository }}/discussions" >> $GITHUB_STEP_SUMMARY
-
-      - name: Error summary
-        if: failure()
-        run: |
-          echo "## ❌ Discussions Setup Failed" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "Please check the logs above for error details." >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "Common issues:" >> $GITHUB_STEP_SUMMARY
-          echo "- Discussions may not be enabled in repository settings" >> $GITHUB_STEP_SUMMARY
-          echo "- GITHUB_TOKEN may need additional permissions" >> $GITHUB_STEP_SUMMARY
-          echo "- Repository may need to grant Actions write access to discussions" >> $GITHUB_STEP_SUMMARY
+# NOTE:
+# - This workflow expects a repository secret named DISCUSSIONS_TOKEN (a PAT with repo scope).
+# - If you prefer to use the built-in GITHUB_TOKEN, ensure Settings -> Actions -> Workflow permissions is set to "Read and write"
+#   and the workflow is executed by a maintainer (not a fork PR). If GITHUB_TOKEN is insufficient, create the DISCUSSIONS_TOKEN secret.
