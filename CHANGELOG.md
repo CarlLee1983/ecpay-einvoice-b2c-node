@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.0](https://github.com/CarlLee1983/ecpay-einvoice-b2c-node/compare/v1.0.2...v1.1.0) (2025-12-08)
+
+
+### Features
+
+* Add GitHub discussion templates and a comprehensive support guide. ([b4e0d63](https://github.com/CarlLee1983/ecpay-einvoice-b2c-node/commit/b4e0d635819323a88312d9612fc49fa470c238f4))
+
 ## [1.0.2](https://github.com/CarlLee1983/ecpay-einvoice-b2c-node/compare/v1.0.1...v1.0.2) (2025-12-08)
 
 
